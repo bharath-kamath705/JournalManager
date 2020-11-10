@@ -1,0 +1,46 @@
+#!/bin/bash 
+
+# Location of the text files
+LOCATION="/mnt/d/CCTech/Journal"
+
+# Location of script files
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+YEAR=$(date +%Y)
+MONTH=$(date +%m)
+DAY=$(date +%d)
+
+
+TODAY_FILE="$(date +%Y_%m_%d).txt"
+TODAY_PATH="${LOCATION}/${YEAR}/${MONTH}"
+
+PrintHeader(){
+	
+	PRINT_DAY=$(date +%a)
+	PRINT_MONTH=$(date +%b)
+
+	echo "================================================================"
+	echo "${DAY} ${PRINT_MONTH} ${YEAR}                   JOURNAL                       ${PRINT_DAY}"
+	echo "================================================================"
+	echo
+	echo
+	cat "${SCRIPTDIR}/template.txt" 
+
+}
+
+if [[ ! -d  ${TODAY_PATH} ]]
+then
+	mkdir -p ${TODAY_PATH}
+	touch  ${TODAY_PATH}/${TODAY_FILE} 
+	PrintHeader >> ${TODAY_PATH}/${TODAY_FILE}
+	echo  "Created ${TODAY_PATH}/${TODAY_FILE}"
+	
+elif [[ ! -f ${TODAY_PATH}/${TODAY_FILE} ]]
+then
+	touch  ${TODAY_PATH}/${TODAY_FILE} 
+	PrintHeader >> ${TODAY_PATH}/${TODAY_FILE}
+	echo  "Created ${TODAY_PATH}/${TODAY_FILE}"
+fi
+
+vim  + "${LOCATION}/${YEAR}/${MONTH}/${TODAY_FILE}"
+
