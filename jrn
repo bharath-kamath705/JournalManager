@@ -6,13 +6,16 @@ LOCATION="/mnt/d/CCTech/Journal"
 # Location of script files
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-YEAR=$(date +%Y)
+YEAR=$(date +%Y) 
 MONTH=$(date +%m)
 DAY=$(date +%d)
 
-
 TODAY_FILE="$(date +%Y_%m_%d).txt"
 TODAY_PATH="${LOCATION}/${YEAR}/${MONTH}"
+
+FILES_TO_OPEN="${TODAY_PATH}/${TODAY_FILE}"
+
+DISP_ONLY="False"
 
 PrintHeader(){
 	
@@ -28,6 +31,8 @@ PrintHeader(){
 
 }
 
+# Running journal for the first time today: create directory and file
+# if it does not already exist
 if [[ ! -d  ${TODAY_PATH} ]]
 then
 	mkdir -p ${TODAY_PATH}
@@ -42,5 +47,50 @@ then
 	echo  "Created ${TODAY_PATH}/${TODAY_FILE}"
 fi
 
-vim  + "${LOCATION}/${YEAR}/${MONTH}/${TODAY_FILE}"
+# Flag to tell journal not open vim, just to print content to console
+if [[ ${1} == "-d" ]]
+then 
+	DISP_ONLY="True"
+	shift
+fi
 
+
+# open the specified number of files before today 
+if  [[ ( ${#} == "0" ) || ( ${1} =~ ^[0-9]{1,}$ ) ]];
+then
+	NDAYS="1"
+	NDAYSAGO="${NDAYS} days ago"
+
+	while [[ ${NDAYS} -le ${1} ]]
+	do
+		
+		NDAYSAGO="${NDAYS} days ago"
+		YEAR=$(date +%Y --date="${NDAYSAGO}")
+		MONTH=$(date +%m --date="${NDAYSAGO}")
+		DAY=$(date +%d --date="${NDAYSAGO}")
+		TODAY_FILE="$(date +%Y_%m_%d --date="${NDAYSAGO}").txt"
+		TODAY_PATH="${LOCATION}/${YEAR}/${MONTH}"
+
+		if [[ ! -f ${TODAY_PATH}/${TODAY_FILE} ]]
+		then
+			echo  "${TODAY_FILE} does not exist."
+			NDAYS=$(( NDAYS + 1))
+
+		else
+			FILES_TO_OPEN="${FILES_TO_OPEN} ${TODAY_PATH}/${TODAY_FILE}"
+			NDAYS=$(( NDAYS + 1))
+		fi
+	done
+else
+	echo "Invalid arguments."
+	exit
+fi
+
+if [[ ${DISP_ONLY} == "True" ]]
+then
+	cat ${FILES_TO_OPEN}
+else
+
+	vim  + ${FILES_TO_OPEN}
+fi
+	
