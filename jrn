@@ -88,7 +88,7 @@ fi
 
 if [[ ${DISP_ONLY} == "True" ]]
 then
-	cat ${FILES_TO_OPEN}
+	cat ${FILES_TO_OPEN} | less
 else
 
 	vim  + ${FILES_TO_OPEN}
